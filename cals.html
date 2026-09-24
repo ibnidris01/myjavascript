@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<body>
+    <script>
+        // Simple REPL calculator in browser console
+        console.log('Type: calculate("5 + 3 * 2")');
+        
+        function calculate(expr) {
+            try {
+                return Function('"use strict"; return (' + expr + ')')();
+            } catch(e) {
+                return 'Error: ' + e.message;
+            }
+        }
+        
+        // Example
+        console.log(calculate("10 + 20 * 2")); // 50
+    </script>
+</body>
+</html>

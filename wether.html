@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Weather App</title>
+<style>
+body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; text-align: center; background: #f0f8ff; }
+input, button { padding: 10px; font-size: 16px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+button { background: #3498db; color: white; border: none; cursor: pointer; transition: 0.3s; }
+button:hover { background: #2980b9; transform: scale(1.05); }
+#weather-info { margin-top: 20px; padding: 20px; border: 2px solid #3498db; border-radius: 10px; display: none; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+#weather-info h2 { color: #2c3e50; }
+#weather-info p { font-size: 18px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<h1>🌤 Weather App</h1>
+<div>
+<input type="text" id="cityInput" placeholder="Enter city name" value="London">
+<button onclick="getWeather()">Get Weather</button>
+</div>
+<div id="weather-info">
+<h2 id="cityName"></h2>
+<p id="temperature"></p>
+<p id="description"></p>
+<p id="humidity"></p>
+<p id="wind"></p>
+</div>
+
+<script>
+// 🔑 Your API key
+const apiKey = '0caeaa6856ae75409f815a37e7ec5805';
+
+async function getWeather() {
+    console.log('🔵 Weather function started!');
+    const city = document.getElementById('cityInput').value;
+    console.log(`📍 Searching for: ${city}`);
+    
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    console.log(`🔗 URL: ${url}`);
+    
+    try {
+        console.log('📤 Sending request...');
+        const response = await fetch(url);
+        console.log(`📥 Status: ${response.status}`);
+        
+        if (!response.ok) {
+            throw new Error('City not found!');
+        }
+        
+        const data = await response.json();
+        console.log('✅ Data received:', data);
+        
+        document.getElementById('cityName').textContent = `📍 ${data.name}, ${data.sys.country}`;
+        document.getElementById('temperature').textContent = `🌡 Temperature: ${data.main.temp}°C`;
+        document.getElementById('description').textContent = `🌤 ${data.weather[0].description}`;
+        document.getElementById('humidity').textContent = `💧 Humidity: ${data.main.humidity}%`;
+        document.getElementById('wind').textContent = `💨 Wind Speed: ${data.wind.speed} m/s`;
+        
+        document.getElementById('weather-info').style.display = 'block';
+        console.log('🎨 Weather displayed!');
+    } catch (error) {
+        console.log('❌ Error:', error.message);
+        alert('City not found! Please try again.');
+    }
+}
+
+// Auto-load weather for London when page opens
+window.onload = function() {
+    getWeather();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pure Calculator</title>
+</head>
+<body>
+
+    <h2>Calculator</h2>
+
+    <!-- DISPLAY -->
+    <input type="text" id="display" readonly size="20" value="0">
+
+    <br><br>
+
+    <!-- BUTTONS -->
+    <button onclick="appendNumber('7')">7</button>
+    <button onclick="appendNumber('8')">8</button>
+    <button onclick="appendNumber('9')">9</button>
+    <button onclick="setOperator('/')">/</button>
+    <br>
+
+    <button onclick="appendNumber('4')">4</button>
+    <button onclick="appendNumber('5')">5</button>
+    <button onclick="appendNumber('6')">6</button>
+    <button onclick="setOperator('*')">*</button>
+    <br>
+
+    <button onclick="appendNumber('1')">1</button>
+    <button onclick="appendNumber('2')">2</button>
+    <button onclick="appendNumber('3')">3</button>
+    <button onclick="setOperator('-')">-</button>
+    <br>
+
+    <button onclick="appendNumber('0')">0</button>
+    <button onclick="appendDecimal()">.</button>
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="setOperator('+')">+</button>
+    <br>
+
+    <button onclick="backspace()">⌫</button>
+    <button onclick="clearDisplay()">AC</button>
+    <button onclick="calculate()">=</button>
+
+    <br><br>
+    <p><b>Keyboard supported:</b> numbers, + - * /, Enter, Backspace, Escape</p>
+
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT (pure, no frameworks)             -->
+    <!-- ============================================ -->
+    <script>
+        // ----- Get display element -----
+        const display = document.getElementById('display');
+
+        // ----- State -----
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let resetNext = false;
+
+        // ----- Update display -----
+        function updateDisplay() {
+            display.value = currentInput;
+        }
+
+        // ----- Append number -----
+        function appendNumber(num) {
+            if (resetNext) {
+                currentInput = num;
+                resetNext = false;
+            } else {
+                if (currentInput === '0' && num !== '.') {
+                    currentInput = num;
+                } else {
+                    currentInput += num;
+                }
+            }
+            updateDisplay();
+        }
+
+        // ----- Append decimal -----
+        function appendDecimal() {
+            if (resetNext) {
+                currentInput = '0.';
+                resetNext = false;
+                updateDisplay();
+                return;
+            }
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        // ----- Set operator -----
+        function setOperator(op) {
+            if (operator !== null && !resetNext) {
+                calculate(); // chain calculations
+            }
+            previousInput = currentInput;
+            operator = op;
+            resetNext = true;
+        }
+
+        // ----- Calculate -----
+        function calculate() {
+            if (operator === null || resetNext) return;
+
+            const prev = parseFloat(previousInput);
+            const curr = parseFloat(currentInput);
+            let result;
+
+            switch (operator) {
+                case '+': result = prev + curr; break;
+                case '-': result = prev - curr; break;
+                case '*': result = prev * curr; break;
+                case '/':
+                    if (curr === 0) {
+                        alert('Cannot divide by zero!');
+                        clearDisplay();
+                        return;
+                    }
+                    result = prev / curr;
+                    break;
+                default: return;
+            }
+
+            // Fix floating point precision
+            result = parseFloat(result.toFixed(10));
+
+            currentInput = String(result);
+            operator = null;
+            previousInput = '';
+            resetNext = true;
+            updateDisplay();
+        }
+
+        // ----- Clear -----
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operator = null;
+            resetNext = false;
+            updateDisplay();
+        }
+
+        // ----- Backspace -----
+        function backspace() {
+            if (resetNext) return;
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        // ----- Keyboard support -----
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+
+            // Numbers
+            if (key >= '0' && key <= '9') {
+                e.preventDefault();
+                appendNumber(key);
+            }
+            // Decimal
+            else if (key === '.') {
+                e.preventDefault();
+                appendDecimal();
+            }
+            // Operators
+            else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                e.preventDefault();
+                setOperator(key);
+            }
+            // Enter or = to calculate
+            else if (key === 'Enter' || key === '=') {
+                e.preventDefault();
+                calculate();
+            }
+            // Backspace
+            else if (key === 'Backspace') {
+                e.preventDefault();
+                backspace();
+            }
+            // Escape or C to clear
+            else if (key === 'Escape' || key === 'c' || key === 'C') {
+                e.preventDefault();
+                clearDisplay();
+            }
+        });
+
+        // Initialize
+        updateDisplay();
+    </script>
+
+</body>
+</html>
